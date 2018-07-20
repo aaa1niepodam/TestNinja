@@ -6,12 +6,12 @@ namespace TestNinja.Fundamentals
     {
         public int Add(int a, int b)
         { 
-            return a + b;
+            return a + b; //only a single path
         }
         
         public int Max(int a, int b)
         {
-            return (a > b) ? a : b;
+            return (a > b) ? a : b; //two execution paths
         }
 
         public IEnumerable<int> GetOddNumbers(int limit)
