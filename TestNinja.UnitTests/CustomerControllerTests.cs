@@ -5,7 +5,7 @@ using TestNinja.Fundamentals;
 namespace TestNinja.UnitTests
 {
     [TestFixture]
-    public class UnitTest1
+    public class CustomerControllerTests
     {
         [Test]
         public void FormatAsBold_WhenCalled_ShouldEncloseTheStringWithStrongElement()
@@ -22,6 +22,26 @@ namespace TestNinja.UnitTests
             Assert.That(result, Does.StartWith("<strong>").IgnoreCase); //too general
             Assert.That(result, Does.EndWith("</strong>"));
             Assert.That(result, Does.Contain("abc"));
+        }
+
+        [Test]
+        public void GetCustomer_IdIsZero_ReturnNotFound()
+        {
+            var controller = new CustomerController();
+
+            var result = controller.GetCustomer(0);
+
+            //NotFound object
+            Assert.That(result, Is.TypeOf<NotFound>());
+
+            //NotFound object or one of its derivatives
+            Assert.That(result, Is.InstanceOf<NotFound>());
+        }
+
+        [Test]
+        public void GetCustomer_IdIsNotZero_ReturnOk()
+        {
+
         }
     }
 }
