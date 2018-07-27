@@ -11,6 +11,7 @@ namespace TestNinja.Mocking
             if (booking.Status == "Cancelled")
                 return string.Empty;
 
+            //concrete dependence
             var unitOfWork = new UnitOfWork();
             var bookings =
                 unitOfWork.Query<Booking>()
