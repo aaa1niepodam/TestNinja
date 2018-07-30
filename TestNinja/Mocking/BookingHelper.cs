@@ -28,6 +28,32 @@ namespace TestNinja.Mocking
 
             return overlappingBooking == null ? string.Empty : overlappingBooking.Reference;
         }
+
+        //static class: cannot use constructor or injection parameters because of it
+        public static string OverlappingBookingsExist(Booking booking, IBookingRepository repository)
+        {
+            if (booking.Status == "Cancelled")
+                return string.Empty;
+
+            //concrete dependence
+            //var unitOfWork = new UnitOfWork();
+            //var bookings =
+            //    unitOfWork.Query<Booking>()
+            //        .Where(
+            //            b => b.Id != booking.Id && b.Status != "Cancelled");
+
+            var bookings = repository.GetActiveBookings(booking.Id);
+
+            var overlappingBooking =
+                bookings.FirstOrDefault(
+                    b =>
+                        booking.ArrivalDate >= b.ArrivalDate
+                        && booking.ArrivalDate < b.DepartureDate
+                        || booking.DepartureDate > b.ArrivalDate
+                        && booking.DepartureDate <= b.DepartureDate);
+
+            return overlappingBooking == null ? string.Empty : overlappingBooking.Reference;
+        }
     }
 
     public class UnitOfWork
