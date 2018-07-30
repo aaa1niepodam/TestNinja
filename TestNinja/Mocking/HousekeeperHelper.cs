@@ -6,19 +6,15 @@ using System.Text;
 
 namespace TestNinja.Mocking
 {
-    public class HousekeeperHelper
+    public class HouseKeeperService
     {
-        private static readonly UnitOfWork UnitOfWork = new UnitOfWork();
-
+        //private static readonly UnitOfWork UnitOfWork = new UnitOfWork();
         private readonly IUnitOfWork _unitOfWork;
-
         public readonly IStatementGenerator _statementGenerator;
-
         public readonly IEmailSender _emailSender;
-
         public readonly IXtraMessageBox _extraMessageBox;
 
-        public HousekeeperHelper(IUnitOfWork unitOfWork, 
+        public HouseKeeperService(IUnitOfWork unitOfWork, 
                                 IStatementGenerator statementGenerator, 
                                 IEmailSender emailSender,
                                 IXtraMessageBox extraMessageBox)
@@ -31,7 +27,7 @@ namespace TestNinja.Mocking
 
         public void SendStatementEmails(DateTime statementDate)
         {
-            var housekeepers = UnitOfWork.Query<Housekeeper>();
+            var housekeepers = _unitOfWork.Query<Housekeeper>();
 
             foreach (var housekeeper in housekeepers)
             {
