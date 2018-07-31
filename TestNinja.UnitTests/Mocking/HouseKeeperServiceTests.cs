@@ -12,28 +12,84 @@ namespace TestNinja.UnitTests.Mocking
     [TestFixture]
     public class HouseKeeperServiceTests
     {
-        [Test]
-        public void SendStatementEmails_WhenCalled_GenerateStatements()
+        private HouseKeeperService _service;
+        private Mock<IStatementGenerator> _statementGenerator;
+        private Mock<IXtraMessageBox> _messageBox;
+        private readonly DateTime _statementDate = new DateTime(2017, 1, 1);
+        private Housekeeper _houseKeeper;
+
+        [SetUp]
+        public void SetUp()
         {
+            _houseKeeper = new Housekeeper { Email = "a", FullName = "b", Oid = 1, StatementEmailBody = "c" };
+
             var unitOfWork = new Mock<IUnitOfWork>();
             unitOfWork.Setup(uow => uow.Query<Housekeeper>()).Returns(new List<Housekeeper>
             {
-                new Housekeeper { Email = "a", FullName = "b", Oid = 1, StatementEmailBody = "c"}
+                _houseKeeper
             }.AsQueryable());
 
-            var statementGenerator = new Mock<IStatementGenerator>();
+            _statementGenerator = new Mock<IStatementGenerator>();
             var emailSender = new Mock<IEmailSender>();
-            var messageBox = new Mock<IXtraMessageBox>();
+            _messageBox = new Mock<IXtraMessageBox>();
 
-            var service = new HouseKeeperService(
-                unitOfWork.Object, 
-                statementGenerator.Object, 
-                emailSender.Object, 
-                messageBox.Object);
+            _service = new HouseKeeperService(
+                unitOfWork.Object,
+                _statementGenerator.Object,
+                emailSender.Object,
+                _messageBox.Object);
+        }
 
-            service.SendStatementEmails(new DateTime(2017, 1, 1));
+        [Test]
+        public void SendStatementEmails_WhenCalled_GenerateStatements()
+        {
+            _service.SendStatementEmails(_statementDate);
 
-            statementGenerator.Verify(sg => sg.SaveStatement(1, "b", new DateTime(2017, 1, 1)));
+            _statementGenerator.Verify(sg => 
+                sg.SaveStatement(_houseKeeper.Oid, _houseKeeper.FullName, _statementDate));
+        }
+
+        /// <summary>
+        /// Create three parametrized tests with these scenarios below
+        /// </summary>
+
+        [Test]
+        public void SendStatementEmails_HouseKeepersEmailIsNull_ShouldNotGenerateStatements()
+        {
+            _houseKeeper.Email = null;
+
+            _service.SendStatementEmails(_statementDate);
+
+            //this method should not be called
+            _statementGenerator.Verify(sg =>
+                sg.SaveStatement(_houseKeeper.Oid, _houseKeeper.FullName, _statementDate), 
+                Times.Never);
+        }
+
+        [Test]
+        public void SendStatementEmails_HouseKeepersEmailIsWhiteSpace_ShouldNotGenerateStatements()
+        {
+            _houseKeeper.Email = " ";
+
+            _service.SendStatementEmails(_statementDate);
+
+            //this method should not be called
+            _statementGenerator.Verify(sg =>
+                sg.SaveStatement(_houseKeeper.Oid, _houseKeeper.FullName, _statementDate),
+                Times.Never);
+        }
+
+        [Test]
+        public void SendStatementEmails_HouseKeepersEmailIsEmpty_ShouldNotGenerateStatements()
+        {
+            _houseKeeper.Email = "";
+
+            _service.SendStatementEmails(_statementDate);
+
+            //this method should not be called
+            _statementGenerator.Verify(sg =>
+                sg.SaveStatement(_houseKeeper.Oid, _houseKeeper.FullName, _statementDate),
+                Times.Never);
         }
     }
 }
